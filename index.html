@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeFlow Dashboard & Pomodoro Planner</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External Modular Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <header class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80">
+        <section class="flex items-center space-x-3">
+            <figure class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 m-0">
+                <i class="fa-solid fa-compass-drafting text-lg"></i>
+            </figure>
+            <hgroup>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">LifeFlow Dashboard</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Your minimal command center for productivity</p>
+            </hgroup>
+        </section>
+
+        <nav class="flex items-center space-x-3" aria-label="Global controls">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-900/80 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all border border-slate-300/50 dark:border-slate-800 shadow-sm flex items-center space-x-2 text-sm font-medium" title="Toggle Theme">
+                <i id="theme-icon" class="fa-solid fa-moon"></i>
+                <span id="theme-text" class="hidden sm:inline">Dark</span>
+            </button>
+            <!-- Settings / Reset Data Button -->
+            <button id="reset-data-btn" class="p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-900/80 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400 text-slate-700 dark:text-slate-300 transition-all border border-slate-300/50 dark:border-slate-800 shadow-sm text-sm font-medium flex items-center space-x-1" title="Reset all data to default">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span class="hidden sm:inline">Reset Storage</span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Greeting, Quick Links & Focus Timer (7 cols on lg) -->
+        <section class="lg:col-span-7 flex flex-col space-y-8">
+            
+            <!-- Greeting Article with Challenge: Custom Name -->
+            <article class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white p-8 shadow-xl shadow-indigo-500/10">
+                <aside aria-hidden="true" class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></aside>
+                
+                <section class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                    <section>
+                        <aside id="greeting-badge" class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold text-white/90 mb-3">
+                            <i class="fa-solid fa-sun text-amber-300"></i>
+                            <span id="greeting-time-text">Good morning</span>
+                        </aside>
+                        <header class="flex items-center space-x-3 group">
+                            <h2 id="greeting-name-display" class="text-3xl sm:text-4xl font-extrabold tracking-tight">Hello, <span id="user-name-span">Explorer</span></h2>
+                            <button id="edit-name-btn" class="opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 hover:bg-white/30 p-1.5 rounded-lg text-sm text-white" title="Change Name">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </header>
+                        <section id="edit-name-container" class="hidden mt-2 flex items-center space-x-2">
+                            <input type="text" id="user-name-input" placeholder="Enter your name..." class="bg-white/10 border border-white/30 rounded-xl px-3 py-1.5 text-white placeholder-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                            <button id="save-name-btn" class="bg-white text-indigo-900 px-3 py-1.5 rounded-xl text-sm font-semibold hover:bg-indigo-50 transition-colors">Save</button>
+                        </section>
+                    </section>
+
+                    <aside class="text-left sm:text-right bg-black/10 sm:bg-transparent p-4 sm:p-0 rounded-2xl backdrop-blur-sm">
+                        <time id="live-time" class="text-3xl sm:text-4xl font-black tracking-wider text-white">00:00:00</time>
+                        <p id="live-date" class="text-sm font-medium text-indigo-100/80 mt-1">Loading date...</p>
+                    </aside>
+                </section>
+
+                <footer class="mt-6 pt-6 border-t border-white/15 flex items-center justify-between text-sm text-indigo-100/90">
+                    <blockquote id="inspiration-quote" class="italic font-light">"Small daily improvements over time lead to stunning results."</blockquote>
+                    <small class="text-xs bg-white/10 px-2.5 py-1 rounded-lg shrink-0 ml-2">Stay focused</small>
+                </footer>
+            </article>
+
+            <!-- Focus Timer (Pomodoro) Article with Challenge: Customizable Time -->
+            <article class="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+                <header class="flex items-center justify-between mb-6">
+                    <section class="flex items-center space-x-3">
+                        <figure class="w-9 h-9 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold m-0">
+                            <i class="fa-solid fa-clock"></i>
+                        </figure>
+                        <h3 class="text-lg font-bold">Focus Pomodoro</h3>
+                    </section>
+                    <!-- Mode Selector / Settings Toggle -->
+                    <nav class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs font-semibold" aria-label="Timer modes">
+                        <button onclick="setTimerMode('work')" id="mode-work-btn" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition-all">Work (25m)</button>
+                        <button onclick="setTimerMode('shortBreak')" id="mode-short-btn" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-all">Short Break (5m)</button>
+                        <button onclick="setTimerMode('longBreak')" id="mode-long-btn" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition-all">Long Break (15m)</button>
+                    </nav>
+                </header>
+
+                <!-- Timer Display & Controls -->
+                <section class="flex flex-col items-center justify-center py-6">
+                    <section class="relative flex items-center justify-center mb-6">
+                        <aside aria-hidden="true" class="absolute w-48 h-48 rounded-full bg-indigo-500/10 blur-xl animate-pulse"></aside>
+                        <time id="timer-display" class="text-6xl sm:text-7xl font-black tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent relative z-10">
+                            25:00
+                        </time>
+                    </section>
+
+                    <!-- Custom Time Settings Drawer Trigger -->
+                    <section class="mb-6 flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span>Custom duration?</span>
+                        <button id="toggle-custom-timer" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Configure times</button>
+                    </section>
+
+                    <!-- Custom Timer Input Panel -->
+                    <aside id="custom-timer-panel" class="hidden w-full max-w-sm mb-6 p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex flex-col space-y-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Set Custom Minutes</span>
+                        <section class="grid grid-cols-3 gap-2">
+                            <label class="block">
+                                <span class="text-[10px] text-slate-500 block mb-1">Work Min</span>
+                                <input type="number" id="custom-work-input" min="1" max="120" value="25" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-center">
+                            </label>
+                            <label class="block">
+                                <span class="text-[10px] text-slate-500 block mb-1">Short Break</span>
+                                <input type="number" id="custom-short-input" min="1" max="60" value="5" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-center">
+                            </label>
+                            <label class="block">
+                                <span class="text-[10px] text-slate-500 block mb-1">Long Break</span>
+                                <input type="number" id="custom-long-input" min="1" max="60" value="15" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-center">
+                            </label>
+                        </section>
+                        <button id="apply-custom-timer" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">Apply Times</button>
+                    </aside>
+
+                    <!-- Action Buttons -->
+                    <nav class="flex items-center space-x-3" aria-label="Timer actions">
+                        <button id="timer-start-btn" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-500/30 flex items-center space-x-2 transition-all transform active:scale-95">
+                            <i id="timer-start-icon" class="fa-solid fa-play"></i>
+                            <span id="timer-start-text">Start Focus</span>
+                        </button>
+                        <button id="timer-reset-btn" class="px-5 py-3 rounded-2xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-2 transition-all transform active:scale-95">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Reset</span>
+                        </button>
+                    </nav>
+                </section>
+            </article>
+
+            <!-- Quick Links Article -->
+            <article class="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+                <header class="flex items-center justify-between mb-6">
+                    <section class="flex items-center space-x-3">
+                        <figure class="w-9 h-9 rounded-xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold m-0">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </figure>
+                        <h3 class="text-lg font-bold">Quick Links</h3>
+                    </section>
+                    <button id="open-add-link-modal" class="text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-colors flex items-center space-x-1.5">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Link</span>
+                    </button>
+                </header>
+
+                <!-- Links Grid -->
+                <section id="quick-links-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <!-- Dynamic Quick Links rendered here -->
+                </section>
+            </article>
+
+        </section>
+
+        <!-- Right Column: To-Do List with Duplicate Prevention & Sorting (5 cols on lg) -->
+        <section class="lg:col-span-5 flex flex-col space-y-8">
+            <article class="rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col h-full">
+                
+                <header class="flex items-center justify-between mb-6">
+                    <section class="flex items-center space-x-3">
+                        <figure class="w-9 h-9 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold m-0">
+                            <i class="fa-solid fa-list-check"></i>
+                        </figure>
+                        <hgroup>
+                            <h3 class="text-lg font-bold">Tasks & Goals</h3>
+                            <p id="task-counter" class="text-xs text-slate-500 dark:text-slate-400">0 completed of 0</p>
+                        </hgroup>
+                    </section>
+                    <!-- Sort Challenge Selector -->
+                    <label class="relative block">
+                        <select id="task-sort-select" class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="default">Sort: Default</option>
+                            <option value="priority">Sort: Priority</option>
+                            <option value="dueDate">Sort: Due Date</option>
+                            <option value="alphabetical">Sort: A-Z</option>
+                            <option value="status">Sort: Status</option>
+                        </select>
+                    </label>
+                </header>
+
+                <!-- Add Task Form -->
+                <form id="add-task-form" class="space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/50">
+                    <label class="block">
+                        <input type="text" id="task-title-input" placeholder="What needs to be done today?..." required class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </label>
+                    <section class="flex flex-col sm:flex-row items-center gap-2">
+                        <!-- Priority -->
+                        <label class="w-full sm:w-1/2 block">
+                            <select id="task-priority-input" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="low">Priority: Low</option>
+                                <option value="medium" selected>Priority: Medium</option>
+                                <option value="high">Priority: High ⚡</option>
+                            </select>
+                        </label>
+                        <!-- Due Date -->
+                        <label class="w-full sm:w-1/2 block">
+                            <input type="date" id="task-duedate-input" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </label>
+                    </section>
+                    <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Add Task</span>
+                    </button>
+                </form>
+
+                <!-- Task Filter Navigation -->
+                <nav class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 text-xs font-semibold" aria-label="Task filters">
+                    <section class="flex space-x-2">
+                        <button onclick="setTaskFilter('all')" id="filter-all-btn" class="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">All</button>
+                        <button onclick="setTaskFilter('active')" id="filter-active-btn" class="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Active</button>
+                        <button onclick="setTaskFilter('completed')" id="filter-completed-btn" class="px-3 py-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Done</button>
+                    </section>
+                    <button id="clear-completed-tasks" class="text-slate-400 hover:text-red-500 transition-colors">Clear Done</button>
+                </nav>
+
+                <!-- Task List Container -->
+                <ul id="task-list-container" class="space-y-3 overflow-y-auto max-h-[420px] pr-1 flex-grow list-none p-0 m-0">
+                    <!-- Tasks rendered dynamically as <li> items -->
+                </ul>
+
+            </article>
+        </section>
+
+    </main>
+
+    <!-- Add/Edit Quick Link Modal Dialog -->
+    <dialog id="link-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 w-full h-full max-w-none max-h-none bg-transparent">
+        <article class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
+            <header class="flex items-center justify-between mb-4">
+                <h3 id="link-modal-title" class="text-lg font-bold">Add Quick Link</h3>
+                <button id="close-link-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </header>
+            <form id="link-form" class="space-y-4">
+                <input type="hidden" id="link-edit-id">
+                <label class="block">
+                    <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Website Name</span>
+                    <input type="text" id="link-name-input" placeholder="e.g. GitHub, ChatGPT, YouTube" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </label>
+                <label class="block">
+                    <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">URL (https://...)</span>
+                    <input type="url" id="link-url-input" placeholder="https://github.com" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </label>
+                <label class="block">
+                    <span class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Icon (FontAwesome class e.g. fa-brands fa-github)</span>
+                    <input type="text" id="link-icon-input" placeholder="fa-solid fa-globe" value="fa-solid fa-globe" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </label>
+                <nav class="flex justify-end space-x-3 pt-2" aria-label="Modal buttons">
+                    <button type="button" id="cancel-link-modal" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-500/20">Save Link</button>
+                </nav>
+            </form>
+        </article>
+    </dialog>
+
+    <!-- Custom Notification Toast Container -->
+    <aside id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none" aria-live="polite"></aside>
+
+    <!-- Footer Semantic Element -->
+    <footer class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>LifeFlow Dashboard </p>
+        <p class="text-indigo-600 dark:text-indigo-400 font-medium">All data stored securely in browser Local Storage</p>
+    </footer>
+
+    <!-- External Modular JavaScript -->
+    <script src="js/script.js"></script>
+</body>
+</html>
